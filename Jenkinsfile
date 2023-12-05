@@ -26,7 +26,7 @@ pipeline {
                 stage('Plan/Apply') {
                     steps {
                         script {
-                            withAWS(region: AWS_REGION, credentials: 'AWS_KEY') {
+                            withAWS(region: AWS_REGION, credentials: 'AWS_KEYS') {
                                 sh 'terraform plan'
                                 sh 'terraform apply -auto-approve'
                             }
@@ -49,7 +49,7 @@ pipeline {
             }
             steps {
                 script {
-                    withAWS(region: AWS_REGION, credentials: 'AWS_KEY') {
+                    withAWS(region: AWS_REGION, credentials: 'AWS_KEYS') {
                         sh 'terraform destroy -auto-approve'
                     }
                 }
