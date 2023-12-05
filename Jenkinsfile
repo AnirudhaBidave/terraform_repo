@@ -49,7 +49,7 @@ pipeline {
             }
             steps {
                 script {
-                    withAWS(region: AWS_REGION, credentials: 'AWS_KEy') {
+                    withAWS(region: AWS_REGION, credentials: 'AWS_KEY') {
                         sh 'terraform destroy -auto-approve'
                     }
                 }
