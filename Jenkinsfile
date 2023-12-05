@@ -20,7 +20,7 @@ pipeline {
 
         stage('Create Infrastructure') {
             when {
-                expression { params.runDestroy == false }
+                expression { params.Destroy == false }
             }
             stages {
                 stage('Plan/Apply') {
