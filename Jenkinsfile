@@ -1,10 +1,10 @@
 pipeline {
     agent any
 
-environment {
-        AWS_REGION = "us-east-1"
+    environment {
+        AWS_REGION = 'us-east-1'
     }
-    
+
     parameters {
         booleanParam(defaultValue: false, description: 'Run terraform destroy?', name: 'Destroy')
     }
@@ -12,53 +12,44 @@ environment {
     stages {
         stage('Init') {
             steps {
-                script{
+                script {
                     sh 'terraform init'
                 }
             }
         }
 
-        stage('Plan') {
+        stage('Create Infrastructure') {
             when {
                 expression { params.runDestroy == false }
             }
-            stages{
-                stage{
+            stages {
+                stage('Plan/Apply') {
                     steps {
-                        script{
-                            withAWS(region: AWS_REGION, credentials: 'AWS_KEYS') {
-                            sh 'terraform plan'
-                   }
-                }
-            }
-        }
-
-                stage('Apply') {
-                    steps {
-                        script{
-                        withAWS(region: AWS_REGION, credentials: 'AWS_KEYS') {
-                        sh 'terraform apply -auto-approve'
+                        script {
+                            withAWS(region: AWS_REGION, credentials: 'AWS_KEY') {
+                                sh 'terraform plan'
+                                sh 'terraform apply -auto-approve'
+                            }
                         }
                     }
                 }
-            }
-
-                stage('Print Workspace Directory') {
+                stage('Get private key') {
                     steps {
                         script {
-                        echo "Workspace Directory: ${workspace}"
+                            sh "sudo chmod 400 /var/lib/jenkins/workspace/terraform_pipeline/private_key.pem"
+                            sh "sudo cp /var/lib/jenkins/workspace/terraform_pipeline/private_key.pem /home/sigmoid/"
+                        }
                     }
-                }
+                } 
             }
         }
-    }
-    stage('Terraform Destroy'){
-        when {
+        stage('Terraform Destroy') {
+            when {
                 expression { params.Destroy == true }
             }
-        steps{
-            script{
-                 withAWS(region: AWS_REGION, credentials: 'AWS') {
+            steps {
+                script {
+                    withAWS(region: AWS_REGION, credentials: 'AWS_KEy') {
                         sh 'terraform destroy -auto-approve'
                     }
                 }
